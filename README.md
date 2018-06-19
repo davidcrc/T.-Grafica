@@ -1,18 +1,18 @@
 # T.-Grafica
 Leer archivo bmp
 
-#Operaciones elementales:
-	suma:
+# Operaciones elementales:
+## suma:
     ![sumar un escalar](screenshots/op_lineales.png)
-	resta
-	multipli o div
+### resta
+### multipli o div
 
-Transformacion del histograma
+# Transformacion del histograma
 	Estiramiento
 	Ecualizacion
 	Segmentacion de objetos
 
-Combinacion de imagenes
+# Combinacion de imagenes
 	Sumar
 	Restar
 	Producto

@@ -3,7 +3,7 @@
 - Proyecto **untitled** contiene las op. elementales, trasnformacion del histograma , combinacion de imagenes
 - Proyecto **cuda_test** contiene filtros y transformaciones, trasnformacion geometrica con cuatro puntos iniciales.
 
-# Operaciones elementales:
+# 1. Operaciones elementales:
 ## suma: 
     brillo
 ## resta: 
@@ -14,7 +14,7 @@
 ![Operacciones elementales con escalares](screenshots/op_lineales.png)
 
 
-# Transformacion del histograma
+# 2. Transformacion del histograma
 ## Estiramiento: 
 ![Transf. de estiramiento](screenshots/estiramiento.png)
 ## Ecualizacion
@@ -22,7 +22,7 @@
 ## Segmentacion de objetos
 ![Transf. de ecualizacion](screenshots/seg_comb.png)
 
-# Combinacion de imagenes
+# 3. Combinacion de imagenes
     Sumar
     Restar
     Producto
@@ -31,7 +31,7 @@
 ### 
 ![Transf. de ecualizacion](screenshots/combinacion.png)
 
-# Filtros y transformaciones:
+# 4. Filtros y transformaciones:
 	Convolucion: (en GPU) Ej:1
 ![Transf. de ecualizacion](screenshots/convolucion1.png)
 
@@ -39,7 +39,7 @@
 ![Transf. de ecualizacion](screenshots/convolucion2.png)
 
 
-# Transformaciones geométricas:
+# 5. Transformaciones geométricas:
 ## Escoger una imagen, escoger cuatro puntos -> distorsiona
 
 ![Transf. de ecualizacion](screenshots/bilineal.png)

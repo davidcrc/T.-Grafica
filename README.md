@@ -1,12 +1,14 @@
-# T.-Grafica
-Leer archivo bmp
+# T. Grafica
+- **Leer archivo .bmp**
+- Proyecto **untitled** contiene las op. elementales, trasnformacion del histograma , combinacion de imagenes
+- Proyecto **cuda_test** contiene filtros y transformaciones, trasnformacion geometrica con cuatro puntos iniciales.
 
 # Operaciones elementales:
 ## suma: 
     brillo
 ## resta: 
     brillo
-## multipli o div: 
+## multiplicacion , division: 
     contraste
 ### Screnshoot operaciones elementales:
 ![Operacciones elementales con escalares](screenshots/op_lineales.png)
@@ -30,6 +32,16 @@ Leer archivo bmp
 ![Transf. de ecualizacion](screenshots/combinacion.png)
 
 # Filtros y transformaciones:
-	Convolucion: (en GPU) 
+	Convolucion: (en GPU) Ej:1
+![Transf. de ecualizacion](screenshots/convolucion1.png)
+
+    Convolucion: (en GPU) Ej:2
+![Transf. de ecualizacion](screenshots/convolucion2.png)
+
 
 # Transformaciones geométricas:
+## Escoger una imagen, escoger cuatro puntos -> distorsiona
+
+![Transf. de ecualizacion](screenshots/bilineal.png)
+
+## istorsion -> rectificar

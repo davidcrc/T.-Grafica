@@ -1,0 +1,173 @@
+#include <ctime>
+#include <stdio.h>
+#include <cuda_runtime.h> // the next 'include' is for CUDA error checks
+#include <iostream>
+
+#define RED 2
+#define GREEN 1
+#define BLUE 0
+
+//#define MASK_WIDTH 3
+
+//__constant__ char M[MASK_WIDTH*MASK_WIDTH];
+//__constant__ char * M;
+
+using namespace std;
+
+extern "C"
+cudaError_t cuda_main()
+{
+    const int kb = 1024;
+    const int mb = kb * kb;
+    wcout << "NBody.GPU" << endl << "=========" << endl << endl;
+
+    // wcout << "CUDA version:   v" << CUDART_VERSION << endl;
+    // wcout << "Thrust version: v" << THRUST_MAJOR_VERSION << "." << THRUST_MINOR_VERSION << endl << endl;
+
+    int devCount;
+    cudaGetDeviceCount(&devCount);
+    wcout << "Dispositivo CUDA : " << endl << endl;
+
+    for(int i = 0; i < devCount; ++i)
+    {
+        cudaDeviceProp props;
+        cudaGetDeviceProperties(&props, i);
+        wcout << i << ": " << props.name << ": " << props.major << "." << props.minor << endl;
+        wcout << "Memoria global:   " << props.totalGlobalMem / mb << "mb" << endl;
+        wcout << "Memoria compartida:   " << props.sharedMemPerBlock / kb << "kb" << endl;
+        wcout << "Memoria constante: " << props.totalConstMem / kb << "kb" << endl;
+        wcout << "Registros por bloque: " << props.regsPerBlock << endl << endl;
+        wcout << "Multi Processor Count: " << props.multiProcessorCount << endl << endl;
+
+        wcout << "Tamano Warp :         " << props.warpSize << endl;
+        wcout << "Threads por block: " << props.maxThreadsPerBlock << endl;
+        wcout << "Dimension Max block : [ " << props.maxThreadsDim[0] << ", " << props.maxThreadsDim[1]  << ", " << props.maxThreadsDim[2] << " ]" << endl;
+        wcout << "Dimension Max grid :  [ " << props.maxGridSize[0] << ", " << props.maxGridSize[1]  << ", " << props.maxGridSize[2] << " ]" << endl;
+        wcout << endl;
+    }
+
+    return cudaGetLastError();
+}
+
+//funcion device
+__device__ unsigned char clamp(int value){
+    if(value < 0)
+        value = 0;
+    else
+        if(value > 255)
+            value = 255;
+    return (unsigned char)value;
+}
+
+//funcion global de filtro de sobel
+__global__ void Convolucion(unsigned char*M, unsigned char *imageInput, int width, int height, \
+        unsigned int maskWidth,unsigned char *imageOutput){
+
+    unsigned int row = blockIdx.y*blockDim.y+threadIdx.y;
+    unsigned int col = blockIdx.x*blockDim.x+threadIdx.x;
+
+    int Pvalue = 0;
+
+    int N_start_point_row = row - (maskWidth/2);
+    int N_start_point_col = col - (maskWidth/2);
+
+    for(int i = 0; i < maskWidth; i++){
+        for(int j = 0; j < maskWidth; j++ ){
+            if((N_start_point_col + j >=0 && N_start_point_col + j < width) \
+                    &&(N_start_point_row + i >=0 && N_start_point_row + i < height)){
+                Pvalue += imageInput[(N_start_point_row + i)*width+(N_start_point_col + j)] * M[i*maskWidth+j];
+            }
+        }
+    }
+    imageOutput[row*width+col] = clamp(Pvalue);
+}
+
+//funcion global de escala de grises
+__global__ void img2gray(unsigned char *imageInput, int width, int height, unsigned char *imageOutput){
+    int row = blockIdx.y*blockDim.y+threadIdx.y;
+    int col = blockIdx.x*blockDim.x+threadIdx.x;
+
+    if((row < height) && (col < width)){
+        imageOutput[row*width+col] = imageInput[(row*width+col)*3+RED]*0.299 + imageInput[(row*width+col)*3+GREEN]*0.587 \
+                                     + imageInput[(row*width+col)*3+BLUE]*0.114;
+    }
+}
+
+cudaError_t  convolucionCuda(int width, int height, int size, int sizeGray, unsigned char *dataRawImage, unsigned char *&h_imageOutput, char *h_M){
+    cudaError_t error = cudaSuccess;
+    clock_t startGPU, endGPU;
+    double gpu_time_used;
+    int MASK_WIDTH = 3;
+    unsigned char *M;
+    unsigned char *d_dataRawImage, *d_imageOutput, *d_filterOutput;
+
+    //Reserva de Memoria para M
+    error = cudaMalloc((void**)&M,sizeof(unsigned char)*MASK_WIDTH*MASK_WIDTH);
+    if(error != cudaSuccess){
+        printf("Error reservando memoria para M\n");
+        exit(-1);
+    }
+
+    //Reserva de Memoria para d_dataRawImage
+    error = cudaMalloc((void**)&d_dataRawImage,size);
+    if(error != cudaSuccess){
+        printf("Error reservando memoria para d_dataRawImage\n");
+        exit(-1);
+    }
+
+    //Reserva de Memoria para d_imageOutput
+    error = cudaMalloc((void**)&d_imageOutput,sizeGray);
+    if(error != cudaSuccess){
+        printf("Error reservando memoria para d_imageOutput\n");
+        exit(-1);
+    }
+
+    //Reserva de Memoria para d_filterOutput
+    error = cudaMalloc((void**)&d_filterOutput,sizeGray);
+    if(error != cudaSuccess){
+        printf("Error reservando memoria para d_filterOutput\n");
+        exit(-1);
+    }
+
+    //Algoritmo Paralelo con CUDA
+    startGPU = clock();
+
+    error = cudaMemcpy(d_dataRawImage,dataRawImage,size, cudaMemcpyHostToDevice);
+    if(error != cudaSuccess){
+       printf("Error copiando los datos de dataRawImage a d_dataRawImage \n");
+       exit(-1);
+    }
+
+    error = cudaMemcpy(M,h_M,sizeof(unsigned char)*MASK_WIDTH*MASK_WIDTH, cudaMemcpyHostToDevice);
+    if(error != cudaSuccess){
+       printf("Error copiando los datos de h_M a M \n");
+       exit(-1);
+    }
+
+//    error = cudaMemcpyToSymbol(M,h_M,sizeof(char)*MASK_WIDTH*MASK_WIDTH);
+//    if(error != cudaSuccess){
+//       printf("Error copiando los datos de h_M a d_M \n");
+//       exit(-1);
+//    }
+
+    int blockSize = 32;
+    dim3 dimBlock(blockSize,blockSize,1);
+    dim3 dimGrid(ceil(width/float(blockSize)),ceil(height/float(blockSize)),1);
+    //llamamos la funcion de escala de grises
+    img2gray<<<dimGrid,dimBlock>>>(d_dataRawImage,width,height,d_imageOutput);
+    //Sincronizamos
+    cudaDeviceSynchronize();
+    //llamamos la funcion de filtro de sobel
+    Convolucion<<<dimGrid,dimBlock>>>(M, d_imageOutput,width,height,MASK_WIDTH ,d_filterOutput);
+    cudaMemcpy(h_imageOutput,d_filterOutput,sizeGray,cudaMemcpyDeviceToHost);
+
+    endGPU = clock();
+    //fin algoritmo Paralelo con CUDA
+
+    //imprimir tiempos de ejecucion
+    gpu_time_used = ((double) (endGPU - startGPU)) / CLOCKS_PER_SEC;
+    printf("Tiempo Algoritmo Paralelo CUDA: %.10f\n",gpu_time_used);
+
+    return cudaGetLastError();
+}
+

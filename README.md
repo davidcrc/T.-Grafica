@@ -43,5 +43,3 @@
 ## Escoger una imagen, escoger cuatro puntos -> distorsiona
 
 ![Transf. de ecualizacion](screenshots/bilineal.png)
-
-## istorsion -> rectificar

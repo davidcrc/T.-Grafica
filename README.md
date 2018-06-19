@@ -2,9 +2,9 @@
 Leer archivo bmp
 
 # Operaciones elementales:
-## suma
-## resta
-## multipli o div
+## suma: brillo
+## resta: brillo
+## multipli o div: contraste
 ![Operacciones elementales con escalares](screenshots/op_lineales.png)
 
 # Transformacion del histograma

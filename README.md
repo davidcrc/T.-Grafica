@@ -2,10 +2,10 @@
 Leer archivo bmp
 
 # Operaciones elementales:
-## suma:
-![sumar un escalar](screenshots/op_lineales.png)
+## suma
 ## resta
 ## multipli o div
+![Operacciones elementales con escalares](screenshots/op_lineales.png)
 
 # Transformacion del histograma
 ## Estiramiento

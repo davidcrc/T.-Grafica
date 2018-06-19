@@ -3,7 +3,7 @@ Leer archivo bmp
 
 Operaciones elementales:
 	suma:
-    ![sumar un escalar](https://github.com/davidcrc/T.-Grafica/blob/master/screenshots/op_lineales.png)
+    ![sumar un escalar](screenshots/op_lineales.png)
 	resta
 	multipli o div
 

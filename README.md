@@ -32,10 +32,10 @@
 ![Transf. de ecualizacion](screenshots/combinacion.png)
 
 # 4. Filtros y transformaciones:
-	Convolucion: (en GPU) Ej:1
+	Convolucion:(en GPU) Ej:1
 ![Transf. de ecualizacion](screenshots/convolucion1.png)
 
-    Convolucion: (en GPU) Ej:2
+    Convolucion:(en GPU) Ej:2
 ![Transf. de ecualizacion](screenshots/convolucion2.png)
 
 

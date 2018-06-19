@@ -3,6 +3,13 @@
 - Proyecto **untitled** contiene las op. elementales, trasnformacion del histograma , combinacion de imagenes
 - Proyecto **cuda_test** contiene filtros y transformaciones, trasnformacion geometrica con cuatro puntos iniciales.
 
+# Alumno :
+	** Carpio Rodriguez David **
+
+# Requisitos:
+	OpenCv '2.4.9.1'
+	Qt creator 5.7.0
+	
 # 1. Operaciones elementales:
 ## suma: 
     brillo
